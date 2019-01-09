@@ -1,0 +1,23 @@
+{
+  "name": "builder-es6",
+  "version": "1.0.0",
+  "description": "New builder wiht Rollup",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "builder"
+  ],
+  "author": "S.Razdolyansky",
+  "license": "ISC",
+  "devDependencies": {
+    "browser-sync": "^2.26.3",
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
+    "gulp-better-rollup": "^3.4.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-rigger": "^0.5.8",
+    "gulp-sourcemaps": "^2.6.4"
+  }
+}
