@@ -1,31 +1,47 @@
 {
-  "name": "builder-es6",
-  "version": "1.0.0",
-  "description": "New builder wiht Rollup",
-  "main": "index.html",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "builder"
-  ],
-  "author": "S.Razdolyansky",
-  "license": "ISC",
-  "devDependencies": {
-    "browser-sync": "^2.26.7",
-    "del": "^3.0.0",
-    "gulp": "^4.0.0",
-    "gulp-autoprefixer": "^6.0.0",
-    "gulp-better-rollup": "^3.4.0",
-    "gulp-cheerio": "^0.6.3",
-    "gulp-concat": "^2.6.1",
-    "gulp-minify": "^3.1.0",
-    "gulp-plumber": "^1.2.1",
-    "gulp-replace": "^1.0.0",
-    "gulp-rigger": "^0.5.8",
-    "gulp-sass": "^4.0.2",
-    "gulp-sourcemaps": "^2.6.4",
-    "gulp-svg-sprite": "^1.5.0",
-    "gulp-svgmin": "^2.2.0"
-  }
+	"name": "builder-es6",
+	"version": "1.0.0",
+	"description": "New builder wiht Rollup",
+	"main": "index.html",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"builder"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/OdinVerst/builder-es6"
+	},
+	"author": "S.Razdolyansky",
+	"license": "ISC",
+	"devDependencies": {
+		"browser-sync": "^2.26.7",
+		"browserslist": "^4.6.6",
+		"css-mqpacker": "^7.0.0",
+		"del": "^3.0.0",
+		"eslint": "^5.3.0",
+		"eslint-config-airbnb": "^17.1.1",
+		"eslint-config-prettier": "^6.0.0",
+		"eslint-plugin-import": "^2.18.2",
+		"eslint-plugin-jsx-a11y": "^6.2.3",
+		"eslint-plugin-prettier": "^3.1.0",
+		"eslint-plugin-react": "^7.14.3",
+		"gulp": "^4.0.0",
+		"gulp-autoprefixer": "^6.0.0",
+		"gulp-cheerio": "^0.6.3",
+		"gulp-clean-css": "^4.2.0",
+		"gulp-concat": "^2.6.1",
+		"gulp-postcss": "^8.0.0",
+		"gulp-posthtml": "^3.0.4",
+		"gulp-replace": "^1.0.0",
+		"gulp-sass": "^4.0.2",
+		"gulp-sourcemaps": "^2.6.4",
+		"gulp-svg-sprite": "^1.5.0",
+		"gulp-svgmin": "^2.2.0",
+		"posthtml-include": "^1.2.0",
+		"prettier": "^1.18.2",
+		"rollup": "^1.17.0",
+		"rollup-plugin-node-resolve": "^5.2.0"
+	}
 }
