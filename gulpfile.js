@@ -3,7 +3,6 @@ const prefixer = require('gulp-autoprefixer');
 const del = require('del');
 const sass = require('gulp-sass');
 const concat = require('gulp-concat');
-const clearSCC = require('gulp-clean-css');
 const browserSync = require('browser-sync');
 const sourcemaps = require('gulp-sourcemaps');
 const svgSprite = require('gulp-svg-sprite');
@@ -21,6 +20,7 @@ const { reload } = browserSync;
 
 gulp.task('browser-sync', () => {
 	browserSync.init({
+		open: false,
 		ghostMode: {
 			clicks: true,
 			forms: true,
