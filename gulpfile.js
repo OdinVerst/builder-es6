@@ -25,7 +25,6 @@ const configPath = require('./config.entrypoint');
 // const svgmin = require('gulp-svgmin');
 // const cheerio = require('gulp-cheerio');
 // const replace = require('gulp-replace');
-// const resolve = require('rollup-plugin-node-resolve');
 // const postcss = require('gulp-postcss');
 // const cssmqpacker = require('css-mqpacker');
 
@@ -54,7 +53,7 @@ gulp.task('html', () => {
 });
 
 gulp.task('clean', () => {
-	return del(['build']);
+	return del([configPath.dir]);
 });
 
 gulp.task('js', async () => {
@@ -82,13 +81,9 @@ gulp.task('js', async () => {
 	});
 });
 
-// gulp.task('js-common:build', function() {
-// 	return gulp.src('./src/js-common/**/*.js').pipe(gulp.dest('./build/js/'));
-// });
-
-// gulp.task('favicon', function() {
-// 	return gulp.src('./src/*.ico').pipe(gulp.dest('./build/'));
-// });
+gulp.task('favicon', () =>
+	gulp.src('./src/*.ico').pipe(gulp.dest(configPath.dir))
+);
 
 // gulp.task('sass', function() {
 // 	const plugins = [cssmqpacker()];
@@ -115,9 +110,11 @@ gulp.task('js', async () => {
 // 		.pipe(reload({ stream: true }));
 // });
 
-// gulp.task('fonts:build', function() {
-// 	return gulp.src('./src/fonts/**/*.*').pipe(gulp.dest('./build/fonts/'));
-// });
+gulp.task('font', () => {
+	return gulp
+		.src(configPath.font.entry)
+		.pipe(gulp.dest(configPath.font.output));
+});
 
 // gulp.task('img:build', function() {
 // 	return gulp.src('./src/img/other/*.*').pipe(gulp.dest('./build/images/'));
@@ -159,6 +156,7 @@ gulp.task('js', async () => {
 gulp.task('watch', () => {
 	gulp.watch(configPath.html.watch, gulp.series('html'));
 	gulp.watch(configPath.js.watch, gulp.series('js'));
+	gulp.watch(configPath.font.watch, gulp.series('font'));
 	// gulp.watch('./src/js-common/**/*.js', gulp.series('js-common:build'));
 	// gulp.watch('./src/**/*.scss', gulp.series('sass'));
 	// gulp.watch('./src/img/other/*.*', gulp.series('img:build'));
@@ -169,7 +167,7 @@ gulp.task(
 	'default',
 	gulp.series(
 		'clean',
-		gulp.parallel('html', 'js'),
+		gulp.parallel('html', 'js', 'favicon', 'font'),
 		gulp.parallel('watch', 'bSync')
 	)
 );
