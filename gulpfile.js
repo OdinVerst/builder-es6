@@ -10,6 +10,7 @@ const rollup = require('rollup');
 const resolve = require('rollup-plugin-node-resolve');
 const babel = require('rollup-plugin-babel');
 const commonjs = require('rollup-plugin-commonjs');
+const { uglify } = require('rollup-plugin-uglify');
 
 // Entrypoint
 const configPath = require('./config.entrypoint');
@@ -56,9 +57,9 @@ gulp.task('clean', () => {
 	return del(['build']);
 });
 
-gulp.task('js:rollup', async () => {
+gulp.task('js', async () => {
 	const bundle = await rollup.rollup({
-		input: 'src/js/main.js',
+		input: configPath.js.entry,
 		plugins: [
 			resolve(),
 			commonjs({
@@ -68,13 +69,15 @@ gulp.task('js:rollup', async () => {
 				babelrc: true,
 				runtimeHelpers: true,
 				exclude: 'node_modules/**'
-			})
+			}),
+			uglify()
 		]
 	});
 	await bundle.write({
-		file: 'dist/js/main.js',
+		file: configPath.js.output,
 		format: 'iife',
 		name: 'library',
+		compact: true,
 		sourcemap: true
 	});
 });
@@ -155,7 +158,7 @@ gulp.task('js:rollup', async () => {
 
 gulp.task('watch', () => {
 	gulp.watch(configPath.html.watch, gulp.series('html'));
-	// gulp.watch('./src/js/**/*.js', gulp.series('js:rollup'));
+	gulp.watch(configPath.js.watch, gulp.series('js'));
 	// gulp.watch('./src/js-common/**/*.js', gulp.series('js-common:build'));
 	// gulp.watch('./src/**/*.scss', gulp.series('sass'));
 	// gulp.watch('./src/img/other/*.*', gulp.series('img:build'));
@@ -166,7 +169,7 @@ gulp.task(
 	'default',
 	gulp.series(
 		'clean',
-		gulp.parallel('html', 'js:rollup'),
+		gulp.parallel('html', 'js'),
 		gulp.parallel('watch', 'bSync')
 	)
 );

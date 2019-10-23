@@ -3,7 +3,7 @@ const dirName = './dist';
 module.exports = {
 	js: {
 		entry: './src/js/main.js',
-		output: `${dirName}/js`,
+		output: `${dirName}/js/main.js`,
 		outputProd: `${dirName}/js`,
 		watch: './src/js/**/*.js'
 	},
