@@ -1,0 +1,23 @@
+{
+	"extends": ["airbnb", "prettier"],
+	"plugins": ["prettier"],
+	"rules": {
+		"prettier/prettier": "error",
+		"no-unused-vars": "warn",
+		"no-console": "warn",
+		"func-names": "off",
+		"no-process-exit": "off",
+		"object-shorthand": "off",
+		"class-methods-use-this": "off"
+	},
+	"env": {
+		"browser": true,
+		"node": true
+	},
+	"globals": {
+		"window": true,
+		"document": true,
+		"Swiper": true,
+		"fetch": true
+	}
+}
