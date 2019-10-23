@@ -5,6 +5,11 @@ const del = require('del');
 // Html
 const posthtml = require('gulp-posthtml');
 const include = require('posthtml-include');
+// JS
+const rollup = require('rollup');
+const resolve = require('rollup-plugin-node-resolve');
+const babel = require('rollup-plugin-babel');
+const commonjs = require('rollup-plugin-commonjs');
 
 // Entrypoint
 const configPath = require('./config.entrypoint');
@@ -20,7 +25,6 @@ const configPath = require('./config.entrypoint');
 // const cheerio = require('gulp-cheerio');
 // const replace = require('gulp-replace');
 // const resolve = require('rollup-plugin-node-resolve');
-// const rollup = require('rollup');
 // const postcss = require('gulp-postcss');
 // const cssmqpacker = require('css-mqpacker');
 
@@ -52,18 +56,28 @@ gulp.task('clean', () => {
 	return del(['build']);
 });
 
-// gulp.task('js:rollup', async function() {
-// 	const bundle = await rollup.rollup({
-// 		input: 'src/js/main.js',
-// 		plugins: [resolve()]
-// 	});
-// 	await bundle.write({
-// 		file: 'build/js/main.js',
-// 		format: 'iife',
-// 		name: 'library',
-// 		sourcemap: true
-// 	});
-// });
+gulp.task('js:rollup', async () => {
+	const bundle = await rollup.rollup({
+		input: 'src/js/main.js',
+		plugins: [
+			resolve(),
+			commonjs({
+				include: 'node_modules/**'
+			}),
+			babel({
+				babelrc: true,
+				runtimeHelpers: true,
+				exclude: 'node_modules/**'
+			})
+		]
+	});
+	await bundle.write({
+		file: 'dist/js/main.js',
+		format: 'iife',
+		name: 'library',
+		sourcemap: true
+	});
+});
 
 // gulp.task('js-common:build', function() {
 // 	return gulp.src('./src/js-common/**/*.js').pipe(gulp.dest('./build/js/'));
@@ -150,5 +164,9 @@ gulp.task('watch', () => {
 
 gulp.task(
 	'default',
-	gulp.series('clean', gulp.parallel('html'), gulp.parallel('watch', 'bSync'))
+	gulp.series(
+		'clean',
+		gulp.parallel('html', 'js:rollup'),
+		gulp.parallel('watch', 'bSync')
+	)
 );
