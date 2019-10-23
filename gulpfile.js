@@ -3,6 +3,8 @@ const bSync = require('browser-sync');
 const del = require('del');
 const sourcemaps = require('gulp-sourcemaps');
 // Graphic
+const svgSprite = require('gulp-svg-sprite');
+const svgo = require('gulp-svgo');
 const rename = require('gulp-rename');
 // Html
 const posthtml = require('gulp-posthtml');
@@ -23,16 +25,6 @@ const prefixer = require('gulp-autoprefixer');
 
 // Entrypoint
 const configPath = require('./config.entrypoint');
-
-// const prefixer = require('gulp-autoprefixer');
-//
-// const concat = require('gulp-concat');
-// const svgSprite = require('gulp-svg-sprite');
-// const svgmin = require('gulp-svgmin');
-// const cheerio = require('gulp-cheerio');
-// const replace = require('gulp-replace');
-// const postcss = require('gulp-postcss');
-// const cssmqpacker = require('css-mqpacker');
 
 const { reload } = bSync;
 
@@ -116,11 +108,28 @@ gulp.task('img', () => {
 		.pipe(gulp.dest(configPath.img.output));
 });
 
+gulp.task('svg', () => {
+	return gulp
+		.src(configPath.svg.entry)
+		.pipe(svgo())
+		.pipe(
+			svgSprite({
+				mode: {
+					symbol: {
+						sprite: `../${configPath.svg.nameFile}`
+					}
+				}
+			})
+		)
+		.pipe(gulp.dest(configPath.svg.output));
+});
+
 gulp.task('watch', () => {
 	gulp.watch(configPath.html.watch, gulp.series('html'));
 	gulp.watch(configPath.js.watch, gulp.series('js'));
 	gulp.watch(configPath.font.watch, gulp.series('font'));
 	gulp.watch(configPath.img.watch, gulp.series('img'));
+	gulp.watch(configPath.svg.watch, gulp.series('svg'));
 	gulp.watch(configPath.css.watch, gulp.series('sass'));
 });
 
@@ -128,7 +137,7 @@ gulp.task(
 	'default',
 	gulp.series(
 		'clean',
-		gulp.parallel('html', 'js', 'favicon', 'font', 'img', 'sass'),
+		gulp.parallel('html', 'js', 'favicon', 'font', 'img', 'sass', 'svg'),
 		gulp.parallel('watch', 'bSync')
 	)
 );
