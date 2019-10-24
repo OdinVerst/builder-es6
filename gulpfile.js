@@ -43,9 +43,10 @@ gulp.task('bSync', () => {
 });
 
 gulp.task('html', () => {
+	const plugins = [include({ encoding: 'utf8' })];
 	return gulp
 		.src(configPath.html.entry)
-		.pipe(posthtml([include({ encoding: 'utf8' })]))
+		.pipe(posthtml(plugins))
 		.pipe(gulp.dest(configPath.html.output))
 		.pipe(reload({ stream: true }));
 });
