@@ -18,6 +18,7 @@ const { uglify } = require('rollup-plugin-uglify');
 // CSS
 const cssmqpacker = require('css-mqpacker');
 const postcss = require('gulp-postcss');
+const sortCSSmq = require('sort-css-media-queries');
 const concat = require('gulp-concat');
 const sass = require('gulp-sass');
 const csso = require('gulp-csso');
@@ -91,7 +92,11 @@ gulp.task('font', () => {
 });
 
 gulp.task('sass', () => {
-	const plugins = [cssmqpacker()];
+	const plugins = [
+		cssmqpacker({
+			sort: sortCSSmq
+		})
+	];
 	return gulp
 		.src(configPath.css.entry)
 		.pipe(sourcemaps.init())
