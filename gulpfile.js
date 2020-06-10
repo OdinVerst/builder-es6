@@ -1,5 +1,4 @@
 const gulp = require('gulp');
-const bSync = require('browser-sync');
 const del = require('del');
 const sourcemaps = require('gulp-sourcemaps');
 // Graphic
@@ -26,22 +25,24 @@ const prefixer = require('gulp-autoprefixer');
 
 // Entrypoint
 const configPath = require('./config.entrypoint');
+const bSync = require('./gulp-tasks/bSync');
+const browserSync = require('browser-sync');
 
-const { reload } = bSync;
+const { reload } = browserSync;
 
-gulp.task('bSync', () => {
-	bSync.init({
-		open: false,
-		ghostMode: {
-			clicks: true,
-			forms: true,
-			scroll: false
-		},
-		server: {
-			baseDir: configPath.dir
-		}
-	});
-});
+// gulp.task('bSync', () => {
+// 	bSync.init({
+// 		open: false,
+// 		ghostMode: {
+// 			clicks: true,
+// 			forms: true,
+// 			scroll: false
+// 		},
+// 		server: {
+// 			baseDir: configPath.dir
+// 		}
+// 	});
+// });
 
 gulp.task('html', () => {
 	const plugins = [include({ encoding: 'utf8' })];
@@ -144,6 +145,6 @@ gulp.task(
 	gulp.series(
 		'clean',
 		gulp.parallel('html', 'js', 'favicon', 'font', 'img', 'sass', 'svg'),
-		gulp.parallel('watch', 'bSync')
+		gulp.parallel('watch', bSync)
 	)
 );
