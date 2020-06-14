@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const del = require('del');
 const sourcemaps = require('gulp-sourcemaps');
+const browserSync = require('browser-sync');
 // Graphic
 const svgSprite = require('gulp-svg-sprite');
 const svgo = require('gulp-svgo');
@@ -25,39 +26,33 @@ const prefixer = require('gulp-autoprefixer');
 
 // Entrypoint
 const configPath = require('./config.entrypoint');
-const bSync = require('./gulp-tasks/bSync');
-const browserSync = require('browser-sync');
 
-const { reload } = browserSync;
+const bSync = () => {
+	browserSync.init({
+		open: false,
+		ghostMode: {
+			clicks: true,
+			forms: true,
+			scroll: false
+		},
+		server: {
+			baseDir: configPath.dir
+		}
+	});
+};
 
-// gulp.task('bSync', () => {
-// 	bSync.init({
-// 		open: false,
-// 		ghostMode: {
-// 			clicks: true,
-// 			forms: true,
-// 			scroll: false
-// 		},
-// 		server: {
-// 			baseDir: configPath.dir
-// 		}
-// 	});
-// });
-
-gulp.task('html', () => {
+const html = () => {
 	const plugins = [include({ encoding: 'utf8' })];
 	return gulp
 		.src(configPath.html.entry)
 		.pipe(posthtml(plugins))
 		.pipe(gulp.dest(configPath.html.output))
-		.pipe(reload({ stream: true }));
-});
+		.pipe(browserSync.stream());
+};
 
-gulp.task('clean', () => {
-	return del([configPath.dir]);
-});
+const clean = () => del([configPath.dir]);
 
-gulp.task('js', async () => {
+const js = async () => {
 	const bundle = await rollup.rollup({
 		input: configPath.js.entry,
 		plugins: [
@@ -67,7 +62,6 @@ gulp.task('js', async () => {
 			}),
 			babel({
 				babelrc: true,
-				runtimeHelpers: true,
 				exclude: 'node_modules/**'
 			}),
 			uglify()
@@ -80,7 +74,7 @@ gulp.task('js', async () => {
 		compact: true,
 		sourcemap: true
 	});
-});
+};
 
 gulp.task('favicon', () =>
 	gulp.src('./src/*.ico').pipe(gulp.dest(configPath.dir))
@@ -105,7 +99,7 @@ gulp.task('sass', () => {
 		.pipe(concat(configPath.css.nameFile))
 		.pipe(postcss(plugins))
 		.pipe(gulp.dest(configPath.css.output))
-		.pipe(reload({ stream: true }));
+		.pipe(browserSync.stream());
 });
 
 gulp.task('img', () => {
@@ -131,20 +125,20 @@ gulp.task('svg', () => {
 		.pipe(gulp.dest(configPath.svg.output));
 });
 
-gulp.task('watch', () => {
-	gulp.watch(configPath.html.watch, gulp.series('html'));
-	gulp.watch(configPath.js.watch, gulp.series('js'));
+const watch = () => {
+	gulp.watch(configPath.html.watch, gulp.series(html));
+	gulp.watch(configPath.js.watch, gulp.series(js));
 	gulp.watch(configPath.font.watch, gulp.series('font'));
 	gulp.watch(configPath.img.watch, gulp.series('img'));
 	gulp.watch(configPath.svg.watch, gulp.series('svg'));
 	gulp.watch(configPath.css.watch, gulp.series('sass'));
-});
+};
 
 gulp.task(
 	'default',
 	gulp.series(
-		'clean',
-		gulp.parallel('html', 'js', 'favicon', 'font', 'img', 'sass', 'svg'),
-		gulp.parallel('watch', bSync)
+		clean,
+		gulp.parallel(html, js, 'favicon', 'font', 'img', 'sass', 'svg'),
+		gulp.parallel(watch, bSync)
 	)
 );

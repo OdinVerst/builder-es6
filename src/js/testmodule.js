@@ -1,3 +1,3 @@
 export default props => {
-	console.log(`Мне передали ${props}`);
+	return props ** 4;
 };
