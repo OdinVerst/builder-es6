@@ -1,7 +1,7 @@
-const gulp = require('gulp');
-const bSync = require('browser-sync');
+const { src, dest, series, watch, parallel } = require('gulp');
 const del = require('del');
 const sourcemaps = require('gulp-sourcemaps');
+const browserSync = require('browser-sync');
 // Graphic
 const svgSprite = require('gulp-svg-sprite');
 const svgo = require('gulp-svgo');
@@ -27,10 +27,8 @@ const prefixer = require('gulp-autoprefixer');
 // Entrypoint
 const configPath = require('./config.entrypoint');
 
-const { reload } = bSync;
-
-gulp.task('bSync', () => {
-	bSync.init({
+const bSyncTask = () => {
+	browserSync.init({
 		open: false,
 		ghostMode: {
 			clicks: true,
@@ -41,22 +39,19 @@ gulp.task('bSync', () => {
 			baseDir: configPath.dir
 		}
 	});
-});
+};
 
-gulp.task('html', () => {
+const htmlTask = () => {
 	const plugins = [include({ encoding: 'utf8' })];
-	return gulp
-		.src(configPath.html.entry)
+	return src(configPath.html.entry)
 		.pipe(posthtml(plugins))
-		.pipe(gulp.dest(configPath.html.output))
-		.pipe(reload({ stream: true }));
-});
+		.pipe(dest(configPath.html.output))
+		.pipe(browserSync.stream());
+};
 
-gulp.task('clean', () => {
-	return del([configPath.dir]);
-});
+const cleanTask = () => del([configPath.dir]);
 
-gulp.task('js', async () => {
+const jsTask = async () => {
 	const bundle = await rollup.rollup({
 		input: configPath.js.entry,
 		plugins: [
@@ -66,7 +61,6 @@ gulp.task('js', async () => {
 			}),
 			babel({
 				babelrc: true,
-				runtimeHelpers: true,
 				exclude: 'node_modules/**'
 			}),
 			uglify()
@@ -79,44 +73,43 @@ gulp.task('js', async () => {
 		compact: true,
 		sourcemap: true
 	});
-});
+};
 
-gulp.task('favicon', () =>
-	gulp.src('./src/*.ico').pipe(gulp.dest(configPath.dir))
-);
+const faviTask = () => src('./src/*.ico').pipe(dest(configPath.dir));
 
-gulp.task('font', () => {
-	return gulp
-		.src(configPath.font.entry)
-		.pipe(gulp.dest(configPath.font.output));
-});
+const fontTask = () => {
+	return src(configPath.font.entry).pipe(dest(configPath.font.output));
+};
 
-gulp.task('sass', () => {
+const imgTask = () => {
+	return src(configPath.img.entry)
+		.pipe(rename({ dirname: '' }))
+		.pipe(dest(configPath.img.output));
+};
+
+const copyTask = async () => {
+	await faviTask();
+	await fontTask();
+	await imgTask();
+};
+
+const sassTask = () => {
 	const plugins = [
 		cssmqpacker({
 			sort: sortCSSmq
 		})
 	];
-	return gulp
-		.src(configPath.css.entry)
+	return src(configPath.css.entry)
 		.pipe(sourcemaps.init())
 		.pipe(sass().on('error', sass.logError))
 		.pipe(concat(configPath.css.nameFile))
 		.pipe(postcss(plugins))
-		.pipe(gulp.dest(configPath.css.output))
-		.pipe(reload({ stream: true }));
-});
+		.pipe(dest(configPath.css.output))
+		.pipe(browserSync.stream());
+};
 
-gulp.task('img', () => {
-	return gulp
-		.src(configPath.img.entry)
-		.pipe(rename({ dirname: '' }))
-		.pipe(gulp.dest(configPath.img.output));
-});
-
-gulp.task('svg', () => {
-	return gulp
-		.src(configPath.svg.entry)
+const svgTask = () => {
+	return src(configPath.svg.entry)
 		.pipe(svgo())
 		.pipe(
 			svgSprite({
@@ -127,23 +120,25 @@ gulp.task('svg', () => {
 				}
 			})
 		)
-		.pipe(gulp.dest(configPath.svg.output));
-});
+		.pipe(dest(configPath.svg.output));
+};
 
-gulp.task('watch', () => {
-	gulp.watch(configPath.html.watch, gulp.series('html'));
-	gulp.watch(configPath.js.watch, gulp.series('js'));
-	gulp.watch(configPath.font.watch, gulp.series('font'));
-	gulp.watch(configPath.img.watch, gulp.series('img'));
-	gulp.watch(configPath.svg.watch, gulp.series('svg'));
-	gulp.watch(configPath.css.watch, gulp.series('sass'));
-});
+const watchTask = () => {
+	watch(configPath.html.watch, series(htmlTask));
+	watch(configPath.js.watch, series(jsTask));
+	watch(configPath.font.watch, series(fontTask));
+	watch(configPath.img.watch, series(imgTask));
+	watch(configPath.svg.watch, series(svgTask));
+	watch(configPath.css.watch, series(sassTask));
+};
 
-gulp.task(
-	'default',
-	gulp.series(
-		'clean',
-		gulp.parallel('html', 'js', 'favicon', 'font', 'img', 'sass', 'svg'),
-		gulp.parallel('watch', 'bSync')
-	)
+exports.prod = series(
+	cleanTask,
+	parallel(htmlTask, jsTask, copyTask, sassTask, svgTask)
+);
+
+exports.default = series(
+	cleanTask,
+	parallel(htmlTask, jsTask, copyTask, sassTask, svgTask),
+	parallel(watchTask, bSyncTask)
 );
